@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Portfolio of Jennifer Isabella Wagner — Creative Technologist"/>
+<meta name="theme-color" content="#0E0E10"/>
+<title>Jennifer Isabella Wagner — Creative Technologist</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0E0E10;--text:#F0EDE8;--text-muted:#7A7570;--text3:#4A4540;
+  --accent:#3D8B5F;--accent-light:#1A3A24;
+  --surface:#18181A;--surface2:#222224;--border:rgba(255,255,255,.06);
+  --radius-lg:16px;--radius-sm:8px;--radius-pill:100px;
+  --transition:all .4s cubic-bezier(.25,1,.5,1);
+}
+html.light{
+  --bg:#F8F9FA;--text:#111111;--text-muted:#4B5563;--text3:#9CA3AF;
+  --accent:#2A7049;--accent-light:#E8F5E9;
+  --surface:#FFFFFF;--surface2:#F3F4F6;--border:rgba(0,0,0,.07);
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);transition:background .4s ease,color .4s ease;overflow-x:hidden;min-height:100vh}
+
+/* ─── TOP NAV ─── */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:0 32px;background:rgba(14,14,16,.85);backdrop-filter:blur(10px);transition:background .4s}
+html.light .top-nav{background:rgba(248,249,250,.85)}
+.nav-links{display:flex;justify-content:center;gap:4px;position:relative;max-width:500px;margin:0 auto;padding:14px 0 10px}
+.nav-links a{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;text-decoration:none;color:var(--text-muted);padding:8px 18px;border-radius:100px;transition:all .3s;white-space:nowrap;background:rgba(255,255,255,.03);cursor:pointer;outline:none;border:1px solid transparent}
+html.light .nav-links a{background:rgba(0,0,0,.03)}
+.nav-links a:hover,.nav-links a.active,
+html.light .nav-links a:hover,html.light .nav-links a.active{background-color:var(--accent);color:#fff;border-color:var(--accent)}
+.nav-links a:focus-visible{box-shadow:0 0 0 2px var(--accent),0 0 0 4px var(--bg);border-color:var(--accent)}
+
+/* ─── THEME TOGGLE ─── */
+.theme-toggle{position:fixed;top:14px;right:20px;z-index:70;cursor:pointer;outline:none;border:none;background:transparent}
+.toggle-track{width:48px;height:26px;border-radius:100px;background:var(--surface2);border:1px solid var(--border);position:relative;transition:background .3s ease}
+.toggle-track:hover{border-color:var(--accent)}
+.toggle-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);position:absolute;top:2px;left:2px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.toggle-track.on .toggle-thumb{transform:translateX(22px)}
+.toggle-label{position:absolute;right:58px;top:50%;transform:translateY(-50%);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;white-space:nowrap;opacity:0;transition:opacity .2s}
+.theme-toggle:hover .toggle-label{opacity:1}
+
+/* ─── ENTRANCE ANIMATIONS ─── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.25,1,.5,1),transform .6s cubic-bezier(.25,1,.5,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.delay-1{transition-delay:.08s}
+.delay-2{transition-delay:.16s}
+.delay-3{transition-delay:.24s}
+.delay-4{transition-delay:.32s}
+
+/* ─── SECTIONS ─── */
+section{position:relative;padding:120px 72px 80px}
+.container{max-width:1100px;margin:0 auto;width:100%}
+
+/* ─── HOME ─── */
+#home{padding:0 72px;min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative}
+#home .home-inner{max-width:400px;width:100%;text-align:center}
+#home .hl-name{font-size:clamp(1.4rem,2.5vw,1.7rem);line-height:1.05;letter-spacing:-.03em;color:var(--text);margin:0 auto 24px;font-weight:700;text-align:center;max-width:400px;white-space:nowrap}
+#home .hl-tagline{font-size:clamp(.95rem,1.1vw,1.05rem);color:var(--text-muted);line-height:1.65;font-weight:400;text-align:center;max-width:400px;margin:0 auto 32px}
+
+/* Scroll down */
+.scroll-down{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;animation:bounce 2s infinite;color:var(--text-muted);text-decoration:none;outline:none}
+.scroll-down:hover{color:var(--accent)}
+.scroll-down:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.scroll-down .sd-text{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+.scroll-down .sd-icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}
+@keyframes bounce{0%,20%,50%,80%,100%{transform:translateX(-50%) translateY(0)}40%{transform:translateX(-50%) translateY(-8px)}60%{transform:translateX(-50%) translateY(-4px)}}
+
+/* Home dashboard */
+.home-right{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:400px;margin:0 auto}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 14px;transition:var(--transition);display:flex;align-items:center;gap:10px;min-height:64px}
+.dash-card:hover{border-color:var(--accent)}
+.dash-card .dash-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.dash-card .dash-text{flex:1}
+.dash-card .dash-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-card .dash-val{font-size:13px;font-weight:500;color:var(--text);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ─── SELECTED WORKS ─── */
+#works{padding:100px 72px 80px}
+#works .works-header{display:flex;align-items:center;gap:24px;margin-bottom:48px}
+#works h2{font-size:2.5rem;letter-spacing:-.02em;font-weight:700;color:var(--text);flex-shrink:0}
+#works .scroll-track{flex:1;height:2px;background:var(--border);border-radius:1px;position:relative;overflow:hidden}
+#works .scroll-fill{position:absolute;top:0;left:0;height:100%;background:var(--accent);border-radius:1px;transition:width .2s ease;width:0%}
+#works .work-scroll{display:flex;gap:32px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#works .work-scroll::-webkit-scrollbar{display:none}
+#works .wc{min-width:280px;max-width:300px;flex-shrink:0;scroll-snap-align:start;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);border:1px solid var(--border);transition:var(--transition);display:flex;flex-direction:column;cursor:pointer;position:relative;text-decoration:none;color:var(--text)}
+#works .wc:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.35);border-color:var(--accent);opacity:1;z-index:2}
+html.light #works .wc:hover{box-shadow:0 24px 60px rgba(0,0,0,.12)}
+#works .wc:focus-within{box-shadow:0 0 0 2px var(--accent),0 24px 60px rgba(0,0,0,.35);border-color:var(--accent);transform:translateY(-6px)}
+#works .wc-thumb{width:100%;aspect-ratio:21/10;position:relative;overflow:hidden;margin-bottom:12px;border-radius:var(--radius-sm);background:var(--surface)}
+#works .wc-thumb img,#works .wc-thumb svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#works .wc-thumb svg{z-index:1}
+#works .wc-thumb img{z-index:2}
+#works .wc-thumb .wc-play{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.15);transition:var(--transition)}
+#works .wc:hover .wc-play{background:rgba(0,0,0,.3)}
+#works .wc-thumb .wc-play svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));opacity:.8;transition:opacity .3s}
+#works .wc:hover .wc-play svg{opacity:1}
+#works .wc-year{position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:100px;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);font-size:12px;color:rgba(255,255,255,.7);font-weight:500;z-index:3}
+html.light #works .wc-year{background:rgba(255,255,255,.6);color:rgba(0,0,0,.6)}
+#works .wc-body{padding:0 20px 20px;display:flex;flex-direction:column;flex:1}
+#works .wc-body .btn-peek{margin-top:auto}
+#works .wc-tag{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:6px}
+#works .wc-name{font-size:1.3rem;font-weight:600;display:block;margin:0 0 8px;line-height:1.3;letter-spacing:-.01em}
+#works .wc-desc{color:var(--text-muted);font-size:14px;line-height:1.6}
+.btn-peek{margin-top:12px;background:var(--surface);border:1px solid var(--border);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition);color:var(--text);display:inline-block;outline:none}
+.btn-peek:hover{border-color:var(--accent);color:var(--accent)}
+.btn-peek:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+
+/* ─── PROJECT DETAIL OVERLAY ─── */
+.detail-overlay{position:fixed;inset:0;z-index:80;background:var(--bg);transform:translateX(100%);transition:transform .5s cubic-bezier(.25,1,.5,1);overflow-y:auto;overflow-x:hidden}
+.detail-overlay.active{transform:translateX(0)}
+.detail-overlay .detail-inner{max-width:900px;margin:0 auto;padding:100px 40px 60px}
+.detail-overlay .detail-header{margin-bottom:48px}
+.detail-overlay .detail-header .detail-label{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:12px}
+.detail-overlay .detail-header h2{font-size:clamp(2rem,4vw,3rem);letter-spacing:-.02em;font-weight:700;margin-bottom:16px;color:var(--text)}
+.detail-overlay .detail-header .detail-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--text-muted);margin-bottom:24px}
+.detail-overlay .detail-header .detail-meta span{background:var(--surface);border:1px solid var(--border);padding:4px 12px;border-radius:100px;font-weight:500}
+.detail-overlay .detail-hero{width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:48px;background:var(--surface)}
+.detail-overlay .detail-hero img{width:100%;height:100%;object-fit:cover}
+.detail-overlay .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:48px}
+.detail-overlay .detail-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:12px;font-weight:700}
+.detail-overlay .detail-col p{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:8px}
+.detail-overlay .detail-col ul{list-style:none;margin:0;padding:0}
+.detail-overlay .detail-col ul li{font-size:15px;color:var(--text-muted);line-height:1.7;padding-left:16px;position:relative;margin-bottom:4px}
+.detail-overlay .detail-col ul li::before{content:'—';position:absolute;left:0;color:var(--accent)}
+.detail-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:48px}
+.detail-gallery .gal-item{border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:3/2;background:var(--surface)}
+.detail-gallery .gal-item img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.detail-gallery .gal-item:hover img{transform:scale(1.04)}
+
+/* ─── PEEK UNDER THE HOOD ─── */
+.hood-toggle{margin:24px 0}
+.hood-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:var(--transition);outline:none}
+.hood-btn:hover{border-color:var(--accent);color:var(--accent)}
+.hood-btn:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+.hood-btn .hood-arrow{transition:transform .3s}
+.hood-btn.open .hood-arrow{transform:rotate(180deg)}
+.hood-panel{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1);opacity:0}
+.hood-panel.open{max-height:800px;opacity:1}
+.hood-content{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:32px;margin-top:12px}
+.hood-content pre{font-family:'SF Mono',Monaco,monospace;font-size:12px;line-height:1.6;color:var(--text);overflow-x:auto;white-space:pre-wrap;word-wrap:break-word}
+.hood-content .code-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:12px}
+.hood-content .code-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:8px}
+.hood-content .spec-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.hood-content .spec-row:last-child{border-bottom:none}
+.hood-content .spec-row .spec-key{color:var(--text-muted);font-weight:600}
+.hood-content .spec-row .spec-val{color:var(--text);font-weight:500}
+
+.detail-close{position:fixed;top:20px;right:20px;z-index:90;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text);transition:all .3s;outline:none}
+.detail-close:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.detail-close:focus-visible{box-shadow:0 0 0 2px var(--accent),0 0 0 4px var(--bg)}
+
+/* ─── ABOUT ─── */
+#about{padding:100px 72px 80px}
+#about h2{font-size:2.5rem;letter-spacing:-.02em;font-weight:700;margin-bottom:48px;color:var(--text)}
+.about-body{display:flex;gap:32px;align-items:flex-start;margin-bottom:0}
+.about-text{flex:1}
+.about-body p{margin-bottom:0;font-size:14px;color:var(--text-muted);line-height:1.85}
+
+/* About placeholder */
+.about-placeholder{width:200px;flex-shrink:0;aspect-ratio:1/1;border-radius:var(--radius-lg);overflow:hidden;transition:var(--transition)}
+.about-placeholder:hover{}
+.about-placeholder img{width:100%;height:100%;object-fit:cover}
+
+/* Info bubbles */
+.info-bubbles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px;margin-bottom:56px;clear:right}
+.info-bubble{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:var(--transition)}
+.info-bubble:hover{border-color:var(--accent);transform:translateY(-2px)}
+.info-bubble .ib-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-weight:600;margin-bottom:6px}
+.info-bubble .ib-val{font-size:14px;font-weight:500;color:var(--text);line-height:1.4}
+
+/* Skills & Tools combined card */
+.skills-tools-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:80px;transition:var(--transition)}
+.skills-tools-card:hover{border-color:var(--accent)}
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.st-col h4{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-weight:600;margin-bottom:12px}
+.tag{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);padding:5px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;color:var(--text-muted);margin:0 6px 6px 0;transition:all .2s;cursor:default}
+.tag:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+
+/* Journey */
+.journey-title{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);font-weight:700;margin-bottom:32px}
+.journey-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-bottom:0;position:relative}
+.journey-left{display:flex;flex-direction:column;gap:0;position:relative;padding-left:40px}
+.journey-timeline{position:absolute;left:0;top:0;bottom:0;width:2px}
+.timeline-line{position:absolute;inset:0;background:var(--border);border-radius:1px}
+.timeline-progress{position:absolute;top:0;left:0;width:100%;background:var(--accent);border-radius:1px;transition:height .4s cubic-bezier(.4,0,.2,1);height:0;box-shadow:0 0 12px rgba(61,139,95,.3)}
+.timeline-dot{position:absolute;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:var(--border);border:2px solid var(--border);transition:all .4s cubic-bezier(.4,0,.2,1);z-index:2}
+.timeline-dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,139,95,.2)}
+.timeline-dot.completed{background:var(--accent);border-color:var(--accent)}
+.timeline-dot.d1{top:0}
+.timeline-dot.d2{top:50%}
+.timeline-dot.d3{top:100%}
+.journey-card{transition:opacity .28s ease,transform .35s ease;opacity:.5;transform:translateY(0);margin-bottom:160px;position:relative;padding-left:0}
+.journey-card:last-child{margin-bottom:0}
+.journey-card.active{transform:translateY(0)}
+.journey-card.centered{opacity:1}
+.journey-card .jc-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+.journey-card .jc-body{font-size:15px;line-height:1.6;color:var(--text)}
+.journey-card .jc-body strong{color:var(--text);font-weight:600}
+.journey-right{display:flex;align-items:center;justify-content:center;position:sticky;top:120px}
+
+/* Earth */
+.earth-wrap{width:260px;height:260px;position:relative}
+.earth-core{width:100%;height:100%;border-radius:50%;position:relative;overflow:hidden;background:#0c1a2e;box-shadow:inset -20px -20px 50px rgba(0,0,0,.5),0 0 60px rgba(30,80,180,.12)}
+#globeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.earth-shadow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 75% 75%,rgba(0,0,0,.55),transparent 60%);pointer-events:none;z-index:5}
+.earth-marker{position:absolute;z-index:10;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 12px var(--accent);transition:all .8s cubic-bezier(.4,0,.2,1);opacity:0;transform:scale(0);display:flex;align-items:center;justify-content:center}
+.earth-marker.show{opacity:1;transform:scale(1)}
+.earth-marker::after{content:attr(data-label);position:absolute;top:50%;left:140%;transform:translateY(-50%);font-size:9px;font-weight:600;color:var(--accent);white-space:nowrap;opacity:0;transition:opacity .4s;text-shadow:0 0 10px var(--bg)}
+.earth-marker.show::after{opacity:1}
+.earth-marker.right::after{left:auto;right:140%}
+.earth-marker::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;border-radius:50%;background:var(--accent);animation:ping 2s cubic-bezier(0,0,.2,1) infinite}
+@keyframes ping{75%,100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+.earth-marker.m1{top:27%;left:51.5%}
+.earth-marker.m2{top:29%;left:52.5%}
+.earth-marker.m3{top:42%;left:79%}
+.earth-marker.m3::after{right:140%;left:auto}
+
+/* ─── CONTACT ─── */
+#contact{padding:100px 72px 120px}
+#contact .container{max-width:600px;margin:0 auto;text-align:center}
+#contact .ct-big{font-size:clamp(2rem,4vw,3.5rem);letter-spacing:-.03em;margin-bottom:32px;font-weight:700;color:var(--text);white-space:nowrap;text-align:center}
+#contact .contact-form{text-align:left;margin:0 auto 40px;max-width:480px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px}
+.form-input,.form-textarea{width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:15px;font-family:inherit;transition:all .3s;outline:none}
+.form-input:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,139,95,.15)}
+.form-textarea{min-height:140px;resize:vertical}
+.form-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:14px 32px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;border:none;background:var(--accent);color:#fff;transition:var(--transition);outline:none}
+.form-submit:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(61,139,95,.25)}
+.form-submit:focus-visible{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+.form-status{font-size:14px;margin-top:16px;font-weight:500;color:var(--accent);min-height:20px}
+.contact-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto}
+.contact-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:var(--transition);text-decoration:none;color:var(--text);outline:none}
+.contact-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+html.light .contact-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.12)}
+.contact-card .cc-icon{font-size:20px;margin-bottom:4px}
+.contact-card .cc-label{font-size:14px;font-weight:600}
+.contact-card .cc-sub{font-size:11px;color:var(--text-muted)}
+.contact-card:active{transform:scale(.97)}
+
+/* Footer */
+.footer-line{font-size:11px;color:var(--text-muted);text-align:center;opacity:.5;margin-bottom:4px;padding-bottom:0}
+.footer-line:last-child{padding-bottom:48px}
+.footer-line a{color:var(--text-muted);text-decoration:none;transition:color .2s;margin:0 8px}
+.footer-line a:hover{color:var(--accent)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  #home{padding:0 32px}
+  #home .home-right{grid-template-columns:repeat(2,1fr);max-width:400px}
+  #works .scroll-track{width:100%}
+}
+@media(max-width:800px){
+  section{padding:80px 32px 60px}
+  #home{padding:0 32px}
+  #works{padding:80px 32px 60px}
+  #works .wc{min-width:280px}
+  .info-bubbles{grid-template-columns:repeat(2,1fr)}
+  .st-grid{grid-template-columns:1fr;gap:24px}
+  .journey-layout{grid-template-columns:1fr}
+  .journey-left{padding-left:32px}
+  .timeline-dot{width:9px;height:9px}
+  .journey-right{position:relative;top:0;margin-top:48px}
+  .earth-wrap{width:200px;height:200px}
+  .about-body{flex-direction:column;align-items:center}
+  .about-placeholder{width:160px}
+  .detail-overlay .detail-grid{grid-template-columns:1fr}
+  .detail-gallery{grid-template-columns:1fr}
+  .detail-overlay .detail-inner{padding:80px 24px 40px}
+  .top-nav{padding:0 16px}
+  .nav-links{gap:2px}
+  .nav-links a{padding:6px 12px;font-size:10px;letter-spacing:.05em}
+  .contact-actions{grid-template-columns:1fr}
+  #home .home-right{grid-template-columns:repeat(2,1fr);max-width:400px}
+  .journey-card{margin-bottom:120px}
+}
+@media(max-width:500px){
+  section{padding:60px 20px 40px}
+  #home{padding:0 20px}
+  #works{padding:60px 20px 40px}
+  .info-bubbles{grid-template-columns:1fr}
+  .journey-left{padding-left:28px}
+  .timeline-dot{width:8px;height:8px}
+  .journey-card{margin-bottom:96px}
+  .detail-overlay .detail-inner{padding:72px 20px 40px}
+}
+
+/* ─── REDUCED MOTION ─── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+  .scroll-down{animation:none}
+}
+</style>
+</head>
+<body class="dark">
+
+<!-- TOP NAV -->
+<div class="top-nav" id="topNav">
+  <div class="nav-links" role="tablist" aria-label="Main navigation">
+    <a href="#home" role="tab" data-i="0" aria-label="Navigate to Home section">home</a>
+    <a href="#works" role="tab" data-i="1" aria-label="Navigate to Selected Works section">work</a>
+    <a href="#about" role="tab" data-i="2" aria-label="Navigate to About section">about</a>
+    <a href="#contact" role="tab" data-i="3" aria-label="Navigate to Contact section">contact</a>
+  </div>
+</div>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+  <span class="toggle-label">Light mode</span>
+  <div class="toggle-track" id="toggleTrack">
+    <div class="toggle-thumb"></div>
+  </div>
+</button>
+
+<!-- PROJECT DETAIL OVERLAY -->
+<div class="detail-overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="detailTitle">
+  <button class="detail-close" id="detailClose" aria-label="Close project details">×</button>
+  <div class="detail-inner">
+    <div class="detail-header">
+      <p class="detail-label" id="detailLabel">Case Study</p>
+      <h2 id="detailTitle">Project Title</h2>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+    <div class="detail-hero" id="detailHero">
+      <img src="" alt="Project hero image" id="detailHeroImg" loading="lazy"/>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-col">
+        <h4>Challenge</h4>
+        <p id="detailChallenge"></p>
+      </div>
+      <div class="detail-col">
+        <h4>Solution</h4>
+        <p id="detailSolution"></p>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-col">
+        <h4>Impact</h4>
+        <ul id="detailImpact"></ul>
+      </div>
+      <div class="detail-col">
+        <h4>Tools & Methods</h4>
+        <ul id="detailTools"></ul>
+      </div>
+    </div>
+    <div class="hood-toggle" id="hoodToggle">
+      <button class="hood-btn" id="hoodBtn" onclick="toggleHood()" aria-expanded="false" aria-controls="hoodPanel">
+        <span class="hood-arrow">▼</span> Peek Under the Hood
+      </button>
+      <div class="hood-panel" id="hoodPanel" aria-hidden="true">
+        <div class="hood-content" id="hoodContent"></div>
+      </div>
+    </div>
+    <div class="detail-gallery" id="detailGallery"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<section id="home" aria-label="Home section">
+  <div class="home-inner">
+    <h1 class="hl-name reveal">Jennifer Isabella Wagner</h1>
+    <p class="hl-tagline reveal delay-1">Creative Technologist with a foundation in operations and systems thinking. I shape digital experiences where human preference meets technology, and I've done it across tech startups, design agencies, small businesses, and global companies, making the people around me work smoother wherever I go.</p>
+    <div class="home-right reveal delay-2">
+      <div class="dash-card">
+        <span class="dash-icon">📍</span>
+        <div class="dash-text">
+          <div class="dash-label">Location</div>
+          <div class="dash-val">Frankfurt</div></div></div>
+      <div class="dash-card">
+        <span class="dash-icon">💼</span>
+        <div class="dash-text">
+          <div class="dash-label">Working at</div>
+          <div class="dash-val">BYD Germany</div></div></div>
+      <div class="dash-card">
+        <span class="dash-icon">✈</span>
+        <div class="dash-text">
+          <div class="dash-label">Status</div>
+          <div class="dash-val">Open to Relocate</div></div></div>
+      <div class="dash-card">
+        <span class="dash-icon">🕐</span>
+        <div class="dash-text">
+          <div class="dash-label">Current Time</div>
+          <div class="dash-val" id="localTime">Frankfurt — 00:00</div></div></div></div>
+  </div>
+  <a href="#works" class="scroll-down reveal delay-2" aria-label="Scroll down to see more">
+    <span class="sd-text">Scroll down to see more</span>
+    <svg class="sd-icon" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+  </a>
+</section>
+
+<!-- SELECTED WORKS -->
+<section id="works" aria-label="Selected works section">
+  <div class="container">
+    <div class="works-header reveal">
+      <h2>Selected works</h2>
+      <div class="scroll-track">
+        <div class="scroll-fill" id="scrollFill"></div>
+      </div>
+    </div>
+    <div class="work-scroll" id="workScroll"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" aria-label="About section">
+  <div class="container">
+    <h2 class="reveal">About</h2>
+    <div class="about-body reveal delay-1">
+      <div class="about-text">
+        <p>I'm a design-driven generalist fascinated by how businesses create value for people and how the right design blending human preference with technology makes that value easier to reach. My background in visual design, digital storytelling, and cross-cultural collaboration meets the real complexity of how businesses serve the people they're built for, and I bring that same thinking to every system, process, and team I work with. Currently managing administrative operations and design systems for EV manufacturing, coordinating cross-functional projects, streamlining workflows, and aligning creative deliverables with business objectives while building shared knowledge so every team can operate independently.</p>
+      </div>
+      <div class="about-placeholder">
+        <img src="Foto.jpg" alt="Jennifer Isabella Wagner" loading="lazy"/>
+      </div>
+    </div>
+    
+    <div class="info-bubbles reveal delay-2">
+      <div class="info-bubble">
+        <div class="ib-label">Role</div>
+        <div class="ib-val">Office Operations Specialist at BYD Germany</div>
+      </div>
+      <div class="info-bubble">
+        <div class="ib-label">Education</div>
+        <div class="ib-val">M.A. Communication Design, Academy of Visual Arts Frankfurt</div>
+      </div>
+      <div class="info-bubble">
+        <div class="ib-label">Languages</div>
+        <div class="ib-val">English (Native), Chinese (Fluent), German (Advanced), Japanese (Beginner)</div>
+      </div>
+      <div class="info-bubble">
+        <div class="ib-label">Interests</div>
+        <div class="ib-val">I like a good balance of getting out and staying in. Sometimes that means traveling, museums, cafes, a bit of sport here and there. But I'm just as happy at home.</div>
+      </div>
+    </div>
+    
+    <div class="skills-tools-card reveal delay-3">
+      <div class="st-grid">
+        <div class="st-col">
+          <h4>Skills</h4>
+          <span class="tag">UI/UX Design</span><span class="tag">Graphic Design</span><span class="tag">Editorial Design</span>
+          <span class="tag">Branding & Visual Identity</span><span class="tag">Prototyping</span><span class="tag">User Research</span>
+          <span class="tag">Marketing Design</span><span class="tag">Prepress & Print Production</span><span class="tag">Video Editing</span>
+          <span class="tag">Visual Storytelling</span><span class="tag">Vendor Coordination</span><span class="tag">Design Systems</span>
+        </div>
+        <div class="st-col">
+          <h4>Tools</h4>
+          <span class="tag">Adobe Creative Suite</span><span class="tag">Figma</span><span class="tag">Canva</span><span class="tag">Claude Code</span><span class="tag">OpenCode</span><span class="tag">Spline Design</span>
+        </div>
+      </div>
+    </div>
+    
+    <p class="journey-title reveal delay-4">My Design Journey</p>
+    <div class="journey-layout reveal delay-4">
+      <div class="journey-left">
+        <div class="journey-timeline">
+          <div class="timeline-line"></div>
+          <div class="timeline-progress" id="timelineProgress"></div>
+          <div class="timeline-dot d1" id="td1"></div>
+          <div class="timeline-dot d2" id="td2"></div>
+          <div class="timeline-dot d3" id="td3"></div>
+        </div>
+        <div class="journey-card" id="jc1">
+          <div class="jc-title">Netherlands</div>
+          <div class="jc-body">Born in <strong>Almere</strong>, a city that didn't exist until someone decided to build it. Pulled from the sea, planned from zero, nothing there by accident. I didn't grow up thinking about design theory, but looking back, growing up somewhere so deliberately made probably had more influence than I realise. It is hard not to develop an instinct for intention when the ground you are standing on was once water.</div>
+        </div>
+        <div class="journey-card" id="jc2">
+          <div class="jc-title">China</div>
+          <div class="jc-body">Raised in <strong>Shanghai</strong>, which means I grew up thinking contradiction was normal. Old and new, east and west, calligraphy class in the morning and internet culture by afternoon. Nobody there treats tradition and modernity like they are in conflict, they just both exist, loudly, at the same time. That probably explains why I have never found it hard to work across very different markets or cultures. It just feels like home.</div>
+        </div>
+        <div class="journey-card" id="jc3">
+          <div class="jc-title">Germany</div>
+          <div class="jc-body"><strong>Frankfurt</strong> is where I figured out what I actually wanted to do with design. It is not the most obvious creative city but that is almost the point, here design has to justify itself. It has to work. Being here pushed me toward systems thinking, toward caring about handoffs and workflows as much as aesthetics. You cannot get away with something just looking good. It has to hold up.</div>
+        </div>
+      </div>
+      <div class="journey-right">
+        <div class="earth-wrap" id="earthWrap">
+          <div class="earth-core">
+            <canvas id="globeCanvas"></canvas>
+            <div class="earth-shadow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" aria-label="Contact section">
+  <div class="container">
+    <h2 class="ct-big reveal">Let's work together.</h2>
+    <form class="contact-form reveal delay-1" id="contactForm" onsubmit="handleForm(event)">
+      <div class="form-group">
+        <label for="contactName">Name</label>
+        <input type="text" id="contactName" class="form-input" placeholder="Your name" required aria-required="true"/>
+      </div>
+      <div class="form-group">
+        <label for="contactEmail">Email</label>
+        <input type="email" id="contactEmail" class="form-input" placeholder="you@company.com" required aria-required="true"/>
+      </div>
+      <div class="form-group">
+        <label for="contactMessage">Message</label>
+        <textarea id="contactMessage" class="form-textarea" placeholder="Tell me about your project, timeline, and goals..." required aria-required="true"></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send message</button>
+      <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+    </form>
+    <div class="contact-actions reveal delay-2">
+      <a href="https://calendly.com/app/scheduling/meeting_types/user/me?create_new_meeting=poll" target="_blank" rel="noopener" class="contact-card">
+        <span class="cc-icon">📞</span>
+        <span class="cc-label">Book a call</span>
+        <span class="cc-sub">30 min discovery</span>
+      </a>
+      <a href="Bella CV 2026.pdf" target="_blank" rel="noopener" class="contact-card">
+        <span class="cc-icon">📄</span>
+        <span class="cc-label">View résumé</span>
+        <span class="cc-sub">PDF document</span>
+      </a>
+    </div>
+    <div class="footer-line reveal delay-3">
+      <a href="https://www.linkedin.com/in/bellawagner/" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a> ·
+      <a href="https://www.instagram.com/frankhaikid/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+    </div>
+    <div class="footer-line reveal delay-4">Created with OpenCode by Jennifer Isabella Wagner · 2026</div>
+  </div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ─── PROJECTS DATA ─── */
+  var projects=[
+    {
+      name:'BYD — Marketing Campaigns',
+      tag:'Marketing',
+      year:'Idea Coming Soon',
+      desc:'Idea Coming Soon — details to follow.',
+      thumb:'linear-gradient(135deg,#C8B5FF,#9B8FFF)',
+      img:'https://placehold.co/600x400/C8B5FF/3D8B5F?text=BYD+Marketing',
+      pat:'<defs><pattern id="w1" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0M0 0V24" stroke="#fff" stroke-width=".5" opacity=".18"/></pattern></defs><rect width="100%" height="100%" fill="url(#w1)"/>',
+      challenge:'',
+      solution:'',
+      impact:[],
+      tools:[],
+      gallery:['https://placehold.co/400x300/C8B5FF/3D8B5F?text=Campaign+Visuals','https://placehold.co/400x300/9B8FFF/FFFFFF?text=Social+Media','https://placehold.co/400x300/C8B5FF/3D8B5F?text=Print+Assets'],
+      hood:{
+        specs:['Channels: 6 (social/print/event/digital)','Templates: 40+ reusable','Campaigns: 12+ delivered','Brand Score: 95%','Teams: 3 using system'],
+        code:'// Campaign Template System\nconst campaignSystem = {\n  social: {\n    formats: ["1080x1080", "1080x1920", "1200x628"],\n    export: "png/srgb",\n    presets: ["instagram", "linkedin", "twitter"]\n  },\n  print: {\n    formats: ["A4", "A5", "DL"],\n    export: "pdf/cmyk",\n    presets: ["flyer", "brochure", "poster"]\n  },\n  digital: {\n    formats: ["1920x1080", "728x90", "300x250"],\n    export: "png/srgb",\n    presets: ["banner", "hero", "ad"]\n  }\n};'
+      }
+    },
+    {
+      name:'BYD — Workflow Process & Onboarding',
+      tag:'DesignOps',
+      year:'Coming Soon',
+      desc:'Documentation, onboarding assets, and workflow systems — details to be added.',
+      thumb:'linear-gradient(135deg,#A8C6FA,#6B8DD6)',
+      img:'https://placehold.co/600x400/A8C6FA/3D8B5F?text=Coming+Soon',
+      pat:'<defs><pattern id="w2" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="none" stroke="#fff" stroke-width=".4" opacity=".12"/></pattern></defs><rect width="100%" height="100%" fill="url(#w2)"/>',
+      challenge:'',
+      solution:'',
+      impact:[],
+      tools:[],
+      gallery:[],
+      hood:{specs:[],code:''}
+    },
+    {
+      name:'Monkeydrive — Automation System',
+      tag:'Operations',
+      year:'2024–2025',
+      desc:'Built a centralized work tracking system so teams could see the real-time status of every print job.',
+      thumb:'linear-gradient(135deg,#B5E8C8,#3DB87A)',
+      img:'monkeydrive/monkeydrive-login.png',
+      pat:'<defs><pattern id="w3" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#fff" opacity=".18"/></pattern></defs><rect width="100%" height="100%" fill="url(#w3)"/>',
+      challenge:'Monkeydrive teams had no visibility into work status. Print orders, design requests, and production jobs were tracked via email and spreadsheets, causing missed deadlines and duplicated work.',
+      solution:'Designed and built a centralized work automation dashboard tracking all print jobs across four departments (Gestaltung, Druckvorstufe, Druck, Finishing). Created a kanban production pipeline, order tracking table with real-time progress indicators, and automated handoff protocols with Slack integration.',
+      impact:['Full production pipeline visibility across 4 departments','Real-time order tracking and status chain','Automated Slack notifications on handoffs','Eskalation system for blocked/delayed jobs'],
+      tools:['Figma','Notion','Zapier','Slack','Airtable','Automation Tools'],
+      gallery:['monkeydrive/monkeydrive-01.png','monkeydrive/monkeydrive-02.png','monkeydrive/monkeydrive-03.png'],
+      hood:{
+        specs:['Screens: 3 (Dashboard, Orders, Handoffs)','Departments: 4','Automation Rules: 5+','Kanban Pipeline: 4 stages','Status Chain: GES > VST > DRU > FIN'],
+        code:'// Production Dashboard System\nconst dashboard = {\n  screens: {\n    screen1: "Produktions-Dashboard (kanban)",\n    screen2: "Auftragsverfolgung (table)",\n    screen3: "Handoffs & Automation (timeline + toggles)"\n  },\n  pipeline: {\n    columns: ["Gestaltung", "Druckvorstufe", "Druck", "Finishing"],\n    statusChain: {\n      GES: "Gestaltung", VST: "Druckvorstufe",\n      DRU: "Druck", FIN: "Finishing"\n    }\n  },\n  automation: [\n    "Slack notification on status change",\n    "Eskalation bei Stillstand/Verzogerung",\n    "E-Mail-Benachrichtigung an Projektleitung",\n    "Automatische Status-Weitergabe",\n    "Ticketsystem-Integration"\n  ]\n};'
+      }
+    },
+    {
+      name:'platea — Anniversary Communication & Events',
+      tag:'Brand & Campaign Design',
+      year:'2022–2023',
+      desc:'Supported design, event branding, and packaging for Ronnefeldt Tea\'s 200th anniversary — from key visuals and trade fair concepts to PR events across Frankfurt.',
+      thumb:'linear-gradient(135deg,#B5D8FF,#4A8FE0)',
+      img:'platea-posters/poster-thumb.png',
+      pat:'<defs><pattern id="w4" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="18" height="18" fill="none" stroke="#fff" stroke-width=".4" opacity=".14"/></pattern></defs><rect width="100%" height="100%" fill="url(#w4)"/>',
+      challenge:'Ronnefeldt Tea, a 200-year-old tea house, needed a comprehensive anniversary communication strategy — logos, key visuals, packaging, trade fair booths, PR, and events — unified under "The next 200 years of tea excellence." The challenge: honor 200 years of heritage while positioning the brand for the future.',
+solution:'Supported the rollout of a full-spectrum visual identity system blending heritage and modernity. Contributed to the award-winning 1823 Anniversary Collection packaging, a trade fair concept for Internorga 2023, and comprehensive digital and print campaign assets. Also assisted with event branding for a multi-location celebration across Frankfurt, including a partnership activation at the Frankfurt Palmengarten.',
+      impact:['Marken-Magnet Award (Silver) for packaging design','Internoga 2023 trade fair presence','Multi-location event: Villa Leonhardi + Chez Marie','Unified brand across digital, print, event & PR channels'],
+      tools:['Figma','Adobe InDesign','Adobe Illustrator','Photoshop','Print Production','Event Design'],
+      gallery:['https://images.squarespace-cdn.com/content/v1/5f4ce8b4218f65674777db0d/1704189181841-YHJ2TQ0BGO63A1W5851U/1823+Anniversary+Collection+Dosen_g.png','https://images.squarespace-cdn.com/content/v1/5f4ce8b4218f65674777db0d/1679590411074-LPHYO8HA3XXWY546X20I/Jubilaeum_2.png','https://images.squarespace-cdn.com/content/v1/5f4ce8b4218f65674777db0d/51339a30-8fbb-40b8-b842-865dc0381e5a/230312_Platea_Ronnefeldt_Internorga_2.jpg'],
+      hood:{
+        specs:['Client: J.T. Ronnefeldt KG','Creative Dir: Luisa Georges, Andreas Redlich','PR Dir: Daniela Redlich','Award: Marken-Magnet Silver','Touchpoints: 12+'],
+        code:'// Anniversary Campaign System\nconst campaign = {\n  identity: {\n    motto: "The next 200 years of tea excellence",\n    deliverables: [\n      "logos", "claims", "key visuals",\n      "packaging", "landing pages",\n      "trade fair design", "press releases",\n      "event planning & management"\n    ]\n  },\n  packaging: {\n    collection: "1823 Anniversary Collection",\n    award: "Marken-Magnet Silber"\n  },\n  events: {\n    venue1: "Villa Leonhardi (history)",\n    venue2: "Chez Marie (future)",\n    partner: "Palmengarten Frankfurt"\n  }\n};'
+      }
+    },
+    {
+      name:'MAGNOTHERM — Brand Signages & Social Media',
+      tag:'Brand Design',
+      year:'2023–2024',
+      desc:'Designed internal signage, social media content, merchandise, and trade fair graphics for MAGNOTHERM — the Darmstadt-based startup making refrigerant-free cooling a reality.',
+      thumb:'linear-gradient(135deg,#FFB5C8,#F472B6)',
+      img:'mag-signages/web-UTL_5968.jpg',
+      pat:'<defs><pattern id="w5" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><line x1="0" y1="0" x2="14" y2="0" stroke="#fff" stroke-width=".5" opacity=".15"/></pattern></defs><rect width="100%" height="100%" fill="url(#w5)"/>',
+      challenge:'MAGNOTHERM needed to refresh internal signage, create consistent social media content, and develop merchandise that reflected their brand identity across all touchpoints.',
+      solution:'Designed a unified visual system for internal signages, created social media templates with brand guidelines, and developed merchandise designs that maintained brand consistency while being practical.',
+      impact:['Internal signage: 15+ locations updated','Social media templates: 12 reusable','Merchandise line: 8 products','Brand consistency score: 92%'],
+      tools:['Figma','Adobe Illustrator','Adobe InDesign','Social Media Tools','Print Production'],
+      gallery:['mag-signages/web-UTL_5760.jpg','mag-signages/web-UTL_5975.jpg','mag-signages/3787607c.JPG','mag-signages/screenshot-extra.png'],
+      hood:{
+        specs:['Signage Locations: 15+','Social Templates: 12','Merchandise Items: 8','Brand Score: 92%','Print Materials: 25+'],
+        code:'// Signage Design System\nconst signageSystem = {\n  types: {\n    wayfinding: { size: "A2", material: "dibond", mount: "wall" },\n    room: { size: "A4", material: "acrylic", mount: "door" },\n    safety: { size: "A3", material: "pvc", mount: "wall" },\n    brand: { size: "A1", material: "canvas", mount: "freestanding" }\n  },\n  colors: ["primary", "secondary", "accent", "neutral"],\n  typography: { heading: "Switzer Bold", body: "Switzer Regular" },\n  icons: { set: "feather", size: "24px" }\n};'
+      }
+    },
+    {
+      name:'MAGNOTHERM - Website UIUX Design',
+      tag:'UI Design',
+      year:'2023–2024',
+      desc:'Supported website UI for MAGNOTHERM — a startup commercializing refrigerant-free magnetic cooling. Designed responsive layouts, product pages, and solution configurators for a deep-tech brand.',
+      thumb:'linear-gradient(135deg,#FFD6B5,#E9A84C)',
+      img:'mag-ui/forest-thumb.png',
+      video:'mag-ui/mag-ui-demo-2.m4v',
+      pat:'<defs><pattern id="w6" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#fff" stroke-width=".7" opacity=".18"/></pattern></defs><rect width="100%" height="100%" fill="url(#w6)"/>',
+      challenge:'MAGNOTHERM\'s magnetic cooling technology was complex to explain. The website needed to make refrigerant-free cooling intuitive for retail buyers, engineers, and investors — all while maintaining scientific credibility and a clean, modern brand image.',
+      solution:'Created responsive UI layouts with clear information hierarchy for the magnetic cooling product line (POLARIS, ECLIPSE), designed modular component systems for consistent content presentation across products/solutions/technology pages, and developed user flows guiding visitors from awareness to inquiry.',
+      impact:['Website bounce rate: -25%','Inquiry form completions: +40%','Responsive across 5 breakpoints','Component library: 30+ reusable'],
+      tools:['Figma','Framer','Maze','User Research','Content Strategy'],
+      gallery:['mag-ui/mag-ui-03.png','mag-ui/mag-ui-01.png','mag-ui/mag-ui-02.png'],
+      hood:{
+        specs:['Pages: 12+','Components: 30+','Breakpoints: 5','Bounce Rate: -25%','Inquiries: +40%'],
+        code:'// Website Component System\nconst webSystem = {\n  products: ["POLARIS", "ECLIPSE"],\n  solutions: [\n    "industrial-processes",\n    "data-centers",\n    "hvac",\n    "medical-pharma",\n    "retail-hospitality",\n    "hydrogen-liquefaction"\n  ],\n  pages: {\n    home: { hero: "full-bleed", cta: "inquiry" },\n    products: { layout: "card-grid", filter: true },\n    solutions: { layout: "icon-grid", sections: 6 },\n    technology: { layout: "explainer", diagram: "magnetocaloric" }\n  }\n};'
+      }
+    },
+    {
+      name:'Freelance — Party House Visual Identity',
+      tag:'Brand Identity',
+      year:'2022–2023',
+      desc:'Complete visual identity for Party House — logo, dual mascot system, flyers, and event branding for a playful event collective.',
+      thumb:'linear-gradient(135deg,#D4C4A8,#8B7355)',
+      img:'partyhouse/ph-06.png',
+      pat:'<defs><pattern id="w7" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M11 0v22M0 11h22" stroke="#fff" stroke-width=".3" opacity=".14"/></pattern></defs><rect width="100%" height="100%" fill="url(#w7)"/>',
+      challenge:'Party House needed a completely new visual identity that reflected their passion for hosting playful gatherings — from movie nights and sporting events to themed parties. The brand had to feel warm, welcoming, and instantly recognizable across flyers and social media.',
+      solution:'Collaborated with industrial designer Zhang Yuwen to create a dual mascot system representing the letters P and H. Each mascot has a distinct personality matching different event themes. Designed flyers, social templates, and a flexible identity system that adapts to any event type while keeping the Party House brand unmistakable.',
+      impact:['Dual mascot system: P & H characters','Flexible identity for any event theme','Flyer and social media template suite','Brand recognition across 5+ event types'],
+      tools:['Figma','Adobe Illustrator','Adobe InDesign','Brand Strategy','Collaboration with Zhang Yuwen'],
+      gallery:['partyhouse/ph-01.png','partyhouse/ph-02.png','partyhouse/ph-03.png','partyhouse/ph-04.png','partyhouse/ph-05.png','partyhouse/ph-06.png'],
+      hood:{
+        specs:['Mascots Created: 2 (P & H)','Event Themes: 5+','Collaborator: Zhang Yuwen','Identity System: Modular','Year: 2023'],
+        code:'// Party House Identity System\nconst partyHouse = {\n  mascots: {\n    P: { personality: "playful", events: ["movie-night", "casual"] },\n    H: { personality: "energetic", events: ["sports", "dance"] }\n  },\n  applications: [\n    "flyers", "social media",\n    "event banners", "merch"\n  ],\n  colors: {\n    primary: "#1A1A2E",\n    accent: "#E94560",\n    neutral: "#F5F3F0"\n  }\n};'
+      }
+    },
+  ];
+
+  var workScroll=document.getElementById('workScroll');
+  projects.forEach(function(p,i){
+    var card=document.createElement('div');
+    card.className='wc';
+    card.setAttribute('tabindex','0');
+    card.setAttribute('role','button');
+    card.setAttribute('aria-label','Open '+p.name+' case study');
+    card.innerHTML=
+      '<div class="wc-thumb" style="background:'+p.thumb+'">'+
+        '<svg viewBox="0 0 360 225" preserveAspectRatio="none">'+p.pat+'</svg>'+
+        '<img src="'+p.img+'" alt="'+p.name+' thumbnail" loading="lazy"/>'+
+        (p.video?'<div class="wc-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="white" width="32" height="32"><polygon points="5,3 19,12 5,21"/></svg></div>':'')+
+        '<span class="wc-year">'+p.year+'</span>'+
+      '</div>'+
+      '<div class="wc-body">'+
+        '<div class="wc-tag">'+p.tag+'</div>'+
+        '<div class="wc-name">'+p.name+'</div>'+
+        '<div class="wc-desc">'+p.desc+'</div>'+
+        '<button class="btn-peek" onclick="openDetail('+i+')" aria-label="View case study">View case study</button>'+
+      '</div>';
+    card.addEventListener('click',function(e){if(e.target.tagName!=='BUTTON')openDetail(i)});
+    card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')openDetail(i)});
+    workScroll.appendChild(card);
+  });
+
+  var detailOverlay=document.getElementById('detailOverlay');
+  var detailClose=document.getElementById('detailClose');
+  var detailTitle=document.getElementById('detailTitle');
+  var detailMeta=document.getElementById('detailMeta');
+  var detailHeroImg=document.getElementById('detailHeroImg');
+  var detailHero=document.getElementById('detailHero');
+  var detailChallenge=document.getElementById('detailChallenge');
+  var detailSolution=document.getElementById('detailSolution');
+  var detailImpact=document.getElementById('detailImpact');
+  var detailTools=document.getElementById('detailTools');
+  var detailGallery=document.getElementById('detailGallery');
+  var hoodBtn=document.getElementById('hoodBtn');
+  var hoodPanel=document.getElementById('hoodPanel');
+  var hoodContent=document.getElementById('hoodContent');
+
+  function openDetail(idx){
+    var p=projects[idx];
+    detailTitle.textContent=p.name;
+    detailMeta.innerHTML='<span>'+p.year+'</span><span>'+p.tag+'</span>';
+    if(p.video){
+      detailHero.innerHTML='<video src="'+p.video+'" poster="'+p.img+'" controls autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>';
+    }else{
+      detailHero.innerHTML='<img src="'+p.img+'" alt="'+p.name+'" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>';
+    }
+    detailChallenge.textContent=p.challenge;
+    detailSolution.textContent=p.solution;
+    detailImpact.innerHTML=p.impact.map(function(i){return '<li>'+i+'</li>'}).join('');
+    detailTools.innerHTML=p.tools.map(function(t){return '<li>'+t+'</li>'}).join('');
+    detailGallery.innerHTML=p.gallery.map(function(g){return '<div class="gal-item"><img src="'+g+'" alt="Project gallery" loading="lazy"/></div>'}).join('');
+    if(hoodPanel.classList.contains('open')){toggleHood()}
+    hoodContent.innerHTML=
+      '<div class="code-label">Technical Specs</div>'+
+      p.hood.specs.map(function(s){return '<div class="spec-row"><span class="spec-key">'+s.split(':')[0]+'</span><span class="spec-val">'+s.split(':').slice(1).join(':')+'</span></div>'}).join('')+
+      '<div class="code-block"><div class="code-label">Code Snippet</div><pre>'+p.hood.code+'</pre></div>';
+    detailOverlay.classList.add('active');
+    detailOverlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    detailClose.focus();
+  }
+  function closeDetail(){
+    detailOverlay.classList.remove('active');
+    detailOverlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  detailClose.addEventListener('click',closeDetail);
+  detailOverlay.addEventListener('click',function(e){if(e.target===detailOverlay)closeDetail()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&detailOverlay.classList.contains('active'))closeDetail()});
+
+  window.toggleHood=function(){
+    var open=hoodPanel.classList.toggle('open');
+    hoodBtn.classList.toggle('open',open);
+    hoodBtn.setAttribute('aria-expanded',open);
+    hoodPanel.setAttribute('aria-hidden',!open);
+  };
+
+  /* ─── THEME TOGGLE ─── */
+  var themeToggle=document.getElementById('themeToggle');
+  var toggleTrack=document.getElementById('toggleTrack');
+  var isLight=false;
+  themeToggle.addEventListener('click',function(){
+    isLight=!isLight;
+    document.documentElement.classList.toggle('light',isLight);
+    toggleTrack.classList.toggle('on',isLight);
+    themeToggle.setAttribute('aria-label',isLight?'Toggle dark mode':'Toggle light mode');
+    themeToggle.querySelector('.toggle-label').textContent=isLight?'Dark mode':'Light mode';
+  });
+
+  /* ─── SCROLL REVEAL ─── */
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){if(entry.isIntersecting)entry.target.classList.add('visible')});
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(function(el){observer.observe(el)});
+
+  /* ─── NAV ACTIVE ─── */
+  var navLinks=document.querySelectorAll('.nav-links a');
+  function updateNav(){
+    var y=window.scrollY+window.innerHeight/3;
+    var sections=['home','works','about','contact'];
+    var active=0;
+    sections.forEach(function(id,i){
+      var el=document.getElementById(id);
+      if(el&&el.offsetTop<=y)active=i;
+    });
+    navLinks.forEach(function(a){a.classList.toggle('active',+a.dataset.i===active)});
+  }
+  window.addEventListener('scroll',updateNav,{passive:true});
+  updateNav();
+
+  /* ─── WORK SCROLL PROGRESS ─── */
+  var scrollFill=document.getElementById('scrollFill');
+  workScroll.addEventListener('scroll',function(){
+    var max=workScroll.scrollWidth-workScroll.clientWidth;
+    var pct=max>0?(workScroll.scrollLeft/max)*100:0;
+    scrollFill.style.width=pct+'%';
+  },{passive:true});
+
+  /* ─── LOCAL TIME ─── */
+  function updateTime(){
+    var el=document.getElementById('localTime');
+    if(!el)return;
+    var now=new Date();
+    var time=now.toLocaleTimeString('en-GB',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit'});
+    el.textContent='Frankfurt '+time;
+  }
+  updateTime();
+  setInterval(updateTime,60000);
+
+  /* ─── FORM ─── */
+  window.handleForm=function(e){
+    e.preventDefault();
+    var name=document.getElementById('contactName').value;
+    var email=document.getElementById('contactEmail').value;
+    var msg=document.getElementById('contactMessage').value;
+    var status=document.getElementById('formStatus');
+    if(!name||!email||!msg){status.textContent='Please fill in all fields.';return}
+    var subject='Portfolio inquiry from '+name;
+    var body='Name: '+name+'%0D%0AEmail: '+email+'%0D%0A%0D%0AMessage:%0D%0A'+msg;
+    window.location.href='mailto:jw7720046@gmail.com?subject='+encodeURIComponent(subject)+'&body='+body;
+    status.textContent='Opening your email client...';
+  };
+
+  /* ─── GLOBE — Gore-based Three.js sphere with real country polygons ─── */
+  var globeGroup,rendererGl,sceneGl,camGl,autoRotate=true,autoRotTimer=null,isDraggingGl=false,targetRotY=null;
+  var prevMouseGl={x:0,y:0},clickStartGl={x:0,y:0};
+  var goreMeshes=[],countryFeatures=null;
+  var GORE_COUNT=12,GORE_WIDTH_DEG=36,GORE_TEX_W=128,GORE_TEX_H=512,RADIUS=1,LON_SEG=4,LAT_SEG=64;
+  var visitedCountryIds={528:true,276:true,156:true};
+
+  function latLonToVec3(lat,lon,r){
+    var phi=(90-lat)*Math.PI/180,theta=(lon+180)*Math.PI/180;
+    return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(theta),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(theta));
+  }
+
+  function isLightGlobe(){return document.documentElement.classList.contains('light');}
+
+  function genGoreTexture(goreIndex,features){
+    var c=document.createElement('canvas');c.width=GORE_TEX_W;c.height=GORE_TEX_H;
+    var cx=c.getContext('2d');
+    var light=isLightGlobe();
+    cx.fillStyle=light?'#e8e8ec':'#0a0e1a';cx.fillRect(0,0,GORE_TEX_W,GORE_TEX_H);
+    if(!features)return c;
+    var goreStartLon=goreIndex*GORE_WIDTH_DEG-180;
+    function project(lon,lat){
+      while(lon<-180)lon+=360;while(lon>180)lon-=360;
+      if(lon<goreStartLon||lon>=goreStartLon+GORE_WIDTH_DEG)return null;
+      var x=(lon-goreStartLon)/GORE_WIDTH_DEG*GORE_TEX_W;
+      var y=(90-lat)/180*GORE_TEX_H;
+      return[x,y];
+    }
+    function traceRing(ring){var pts=[];for(var i=0;i<ring.length;i++){var p=project(ring[i][0],ring[i][1]);if(p)pts.push(p);}return pts;}
+    function addSubpath(pts){if(pts.length<3)return;cx.moveTo(pts[0][0],pts[0][1]);for(var k=1;k<pts.length;k++)cx.lineTo(pts[k][0],pts[k][1]);cx.closePath();}
+    function drawFeature(feature,fillStyle,strokeStyle){
+      var g=feature.geometry;if(!g)return;
+      var polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+      for(var p=0;p<polys.length;p++){
+        cx.beginPath();addSubpath(traceRing(polys[p][0]));
+        for(var h=1;h<polys[p].length;h++)addSubpath(traceRing(polys[p][h]));
+        cx.fillStyle=fillStyle;cx.fill('evenodd');
+        if(strokeStyle){cx.strokeStyle=strokeStyle;cx.lineWidth=0.6;cx.stroke();}
+      }
+    }
+    var landFill=light?'#c8c8d0':'#3a3a4a';
+    var visitFill=light?'#2A7049':'#4ade80';
+    var visitEdge=light?'#1e5c3a':'#2d6b4a';
+    for(var i=0;i<features.length;i++)drawFeature(features[i],landFill,null);
+    for(var i=0;i<features.length;i++){if(!visitedCountryIds[features[i].id])continue;drawFeature(features[i],visitFill,visitEdge);}
+    return c;
+  }
+
+  function buildGoreGeometry(goreIndex){
+    var goreStartLon=goreIndex*GORE_WIDTH_DEG-180;
+    var positions=[],uvs=[],indices=[];
+    for(var j=0;j<=LAT_SEG;j++){
+      var v=1-j/LAT_SEG,lat=-90+(1-v)*180;
+      for(var i=0;i<=LON_SEG;i++){
+        var u=i/LON_SEG,lon=goreStartLon+u*GORE_WIDTH_DEG;
+        var pos=latLonToVec3(lat,lon,RADIUS);
+        positions.push(pos.x,pos.y,pos.z);uvs.push(u,v);
+      }
+    }
+    for(var j=0;j<LAT_SEG;j++){for(var i=0;i<LON_SEG;i++){var a=j*(LON_SEG+1)+i,b=a+1,c=a+(LON_SEG+1),d=c+1;indices.push(a,c,b);indices.push(b,c,d);}}
+    var geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+    geo.setIndex(indices);geo.computeVertexNormals();
+    return geo;
+  }
+
+  function buildGridGeometry(){
+    var positions=[],R_GRID=RADIUS*1.002;
+    function pushSeg(p1,p2){positions.push(p1.x,p1.y,p1.z,p2.x,p2.y,p2.z);}
+    var lats=[{lat:0},{lat:23.5},{lat:-23.5},{lat:66.5},{lat:-66.5}];
+    for(var l=0;l<lats.length;l++){var lat=lats[l].lat;for(var lon=-180;lon<180;lon+=2)pushSeg(latLonToVec3(lat,lon,R_GRID),latLonToVec3(lat,lon+2,R_GRID));}
+    for(var lonDeg=0;lonDeg<360;lonDeg+=30){var lon=lonDeg-180;for(lat=-90;lat<90;lat+=2)pushSeg(latLonToVec3(lat,lon,R_GRID),latLonToVec3(lat+2,lon,R_GRID));}
+    var geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    return geo;
+  }
+
+  function applyThemeToGlobe(){
+    if(!countryFeatures)return;
+    goreMeshes.forEach(function(gm){
+      var c=genGoreTexture(gm.index,countryFeatures);
+      gm.tex.image=c;gm.tex.needsUpdate=true;
+    });
+  }
+
+  function initGlobe(){
+    var container=document.getElementById('earthWrap');
+    var canvas=document.getElementById('globeCanvas');
+    if(!container||!canvas||typeof THREE==='undefined')return;
+
+    sceneGl=new THREE.Scene();
+    var rect=container.getBoundingClientRect();
+    var sz=Math.min(rect.width||260,260);
+    camGl=new THREE.PerspectiveCamera(45,1,0.1,100);
+    camGl.position.z=2.6;
+
+    rendererGl=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+    rendererGl.setSize(sz,sz,false);
+    rendererGl.setClearColor(0x000000,0);
+
+    sceneGl.add(new THREE.AmbientLight(0xffffff,0.6));
+    var dir=new THREE.DirectionalLight(0xffffff,0.4);
+    dir.position.set(5,5,5);sceneGl.add(dir);
+
+    globeGroup=new THREE.Group();
+    globeGroup.rotation.x=Math.PI; // flipped upside down
+    sceneGl.add(globeGroup);
+
+    // Build 12 gore meshes
+    for(var g=0;g<GORE_COUNT;g++){
+      var tex=new THREE.CanvasTexture(genGoreTexture(g,null));
+      tex.magFilter=THREE.LinearFilter;tex.minFilter=THREE.LinearMipMapLinearFilter;
+      var mat=new THREE.MeshPhongMaterial({map:tex,color:0xffffff,emissive:0x1a1a1a,emissiveIntensity:0.12,transparent:true,opacity:0.95,shininess:8});
+      var mesh=new THREE.Mesh(buildGoreGeometry(g),mat);
+      globeGroup.add(mesh);
+      goreMeshes.push({mesh:mesh,tex:tex,index:g});
+    }
+
+    // Grid lines
+    var gridMat=new THREE.LineBasicMaterial({color:isLightGlobe()?0x000000:0xffffff,transparent:true,opacity:isLightGlobe()?0.22:0.28});
+    globeGroup.add(new THREE.LineSegments(buildGridGeometry(),gridMat));
+
+    // Load real world data
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+      .then(function(r){return r.json();})
+      .then(function(top){
+        if(typeof topojson==='undefined')return;
+        countryFeatures=topojson.feature(top,top.objects.countries).features;
+        goreMeshes.forEach(function(gm){
+          var c=genGoreTexture(gm.index,countryFeatures);
+          gm.tex.image=c;gm.tex.needsUpdate=true;
+        });
+      }).catch(function(e){console.warn('World data load failed:',e);});
+
+    // Drag
+    function onDown(e){
+      isDraggingGl=true;autoRotate=false;clearTimeout(autoRotTimer);
+      var p=e.touches?e.touches[0]:e;
+      clickStartGl={x:p.clientX,y:p.clientY};prevMouseGl={x:p.clientX,y:p.clientY};
+    }
+    function onMove(e){
+      if(!isDraggingGl)return;
+      var p=e.touches?e.touches[0]:e;
+      var dx=p.clientX-prevMouseGl.x,dy=p.clientY-prevMouseGl.y;
+      globeGroup.rotation.y+=dx*0.008;globeGroup.rotation.x+=dy*0.008;
+      globeGroup.rotation.x=Math.max(-0.8,Math.min(0.8,globeGroup.rotation.x));
+      prevMouseGl={x:p.clientX,y:p.clientY};
+    }
+    function onUp(e){
+      if(!isDraggingGl)return;
+      isDraggingGl=false;
+      autoRotTimer=setTimeout(function(){autoRotate=true;},3000);
+    }
+    rendererGl.domElement.addEventListener('mousedown',onDown);
+    rendererGl.domElement.addEventListener('mousemove',onMove);
+    rendererGl.domElement.addEventListener('mouseup',onUp);
+    rendererGl.domElement.addEventListener('mouseleave',function(){isDraggingGl=false;});
+    rendererGl.domElement.addEventListener('touchstart',onDown,{passive:true});
+    rendererGl.domElement.addEventListener('touchmove',onMove,{passive:true});
+    rendererGl.domElement.addEventListener('touchend',onUp);
+    rendererGl.domElement.addEventListener('contextmenu',function(e){e.preventDefault();});
+
+    autoRotate=false; // only rotate when cards are centered
+
+    targetRotY=null;
+    function animate(){
+      requestAnimationFrame(animate);
+      if(autoRotate)globeGroup.rotation.y+=0.003;
+      else if(targetRotY!==null){
+        var diff=targetRotY-globeGroup.rotation.y;
+        globeGroup.rotation.y+=diff*0.05;
+        if(Math.abs(diff)<0.001)targetRotY=null;
+      }
+      rendererGl.render(sceneGl,camGl);
+    }
+    animate();
+  }
+
+  initGlobe();
+
+  /* ─── ABOUT PHOTO ─── (static image, see HTML) */
+  targetRotY=-0.093; // start facing Netherlands
+
+  // Theme change → regenerate textures
+  var themeObserverGlobe=new MutationObserver(function(){applyThemeToGlobe();});
+  themeObserverGlobe.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+
+  /* ─── JOURNEY — bidirectional timeline + dots + globe ─── */
+  var timelineProgress=document.getElementById('timelineProgress');
+  var td1=document.getElementById('td1'),td2=document.getElementById('td2'),td3=document.getElementById('td3');
+  var jc1=document.getElementById('jc1'),jc2=document.getElementById('jc2'),jc3=document.getElementById('jc3');
+  var allCards=[jc1,jc2,jc3],allDots=[td1,td2,td3];
+  var globeTargets=[-0.093,-1.819,-0.183]; // NL, CN, DE
+  var currentIndex=-1,lastRaf=0,sectionVisible=false;
+
+  function setDots(idx){
+    allDots.forEach(function(d,i){
+      d.classList.remove('active','completed');
+      if(i===idx)d.classList.add('active');
+    });
+  }
+
+  function transitionCard(idx,direction){
+    allCards.forEach(function(c,i){
+      c.classList.remove('active');
+      if(i===idx){c.classList.add('active')}
+    });
+  }
+
+  function rotateGlobe(idx){
+    if(idx<0||idx>2||!globeGroup)return;
+    var rot=globeTargets[idx];
+    var diff=rot-globeGroup.rotation.y;
+    while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
+    targetRotY=globeGroup.rotation.y+diff;
+  }
+
+  function onProgressChange(progress){
+    var newIdx;
+    if(progress<=1)newIdx=-1;
+    else if(progress<=33)newIdx=0;
+    else if(progress<=66)newIdx=1;
+    else newIdx=2;
+
+    var now=Date.now();
+    if(newIdx===currentIndex)return;
+    if(now-lastRaf<16)return;
+    lastRaf=now;
+
+    var dir=newIdx>currentIndex?1:-1;
+    if(currentIndex>=0){transitionCard(newIdx,dir)}
+    else{allCards.forEach(function(c){c.classList.remove('active')})}
+    transitionCard(newIdx,dir);
+
+    currentIndex=newIdx;
+  }
+
+  var sectionObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting){
+        if(sectionVisible){
+          allCards.forEach(function(c){c.style.opacity='0';c.style.transition='opacity .4s ease'});
+          currentIndex=-1;sectionVisible=false;
+        }
+        return;
+      }
+      sectionVisible=true;
+      allCards.forEach(function(c){c.style.transition='';c.style.opacity=''});
+      var ratio=entry.intersectionRatio;
+      var progress=Math.min(ratio*150,100);
+      onProgressChange(progress);
+    });
+  },{threshold:[0,.05,.15,.25,.35,.45,.55,.65,.75,.85,.95,1]});
+  sectionObs.observe(document.querySelector('.journey-layout'));
+
+  /* ─── Center detection — fade + timeline fill + dots + globe ─── */
+  var allJCs=document.querySelectorAll('.journey-card');
+  var cardHeights=[16.66,50,100];
+  allJCs.forEach(function(c,i){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        c.classList.toggle('centered',e.isIntersecting);
+        if(e.isIntersecting){
+          timelineProgress.style.height=cardHeights[i]+'%';
+          allDots.forEach(function(d,j){d.classList.toggle('completed',j<=i)});
+          rotateGlobe(i);
+        }
+      });
+    },{rootMargin:'-35% 0px -35% 0px',threshold:0});
+    obs.observe(c);
+  });
+
+})();
+</script>
+</body>
+</html>

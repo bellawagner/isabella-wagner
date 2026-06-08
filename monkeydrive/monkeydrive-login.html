@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Monkeydrive Login</title>
+<style>:root{--monkey-orange:#ea580c;--text-dark:#121416;--text-muted:#6c757d;--success:#16a34a}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#111315;color:var(--text-dark);line-height:1.5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-container{position:relative;width:100%;min-height:620px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.login-bg-mesh{position:absolute;top:-50%;left:-50%;right:-50%;bottom:-50%;width:200%;height:200%;background:linear-gradient(90deg,rgba(234,88,12,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(234,88,12,.03) 1px,transparent 1px);background-size:40px 40px;transform:rotate(12deg);animation:meshFlow 24s linear infinite}
+.login-card{position:relative;width:420px;background:#fff;border-radius:16px;padding:40px;box-shadow:0 20px 50px rgba(0,0,0,.3);z-index:10;animation:cardPop .5s cubic-bezier(.34,1.56,.64,1) both}
+.login-header{text-align:center;margin-bottom:32px}
+.brand-monogram{margin:0 auto 12px;width:48px;height:48px;font-size:22px;background:var(--monkey-orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;border-radius:8px}
+.login-header h2{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.login-header p{font-size:13px;color:var(--text-muted);margin-top:4px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px}
+.form-input{width:100%;padding:12px 16px;border:1px solid #e9ecef;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--monkey-orange)}
+.login-footer-actions{display:flex;justify-content:space-between;align-items:center;margin:16px 0 24px;font-size:12px}
+.checkbox-container{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer}
+.btn-login-submit{width:100%;padding:14px;background:var(--monkey-orange);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;font-family:inherit}
+.btn-login-submit:hover{opacity:.9}
+.system-status-pill{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:24px;font-size:11px;color:var(--text-muted);font-weight:500}
+.dot-green{width:8px;height:8px;background:var(--success);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes meshFlow{0%{transform:rotate(12deg)translate(0,0)}100%{transform:rotate(12deg)translate(-40px,-40px)}}
+@keyframes cardPop{0%{opacity:0;transform:scale(.9)translateY(20px)}100%{opacity:1;transform:scale(1)translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style></head><body>
+<div class="login-container"><div class="login-bg-mesh"></div>
+<div class="login-card"><div class="login-header"><div class="brand-monogram">M</div><h2>Monkeydrive</h2><p>Zentrales Betriebs- & Produktionsportal</p></div>
+<form onsubmit="return false"><div class="form-group"><label for="username">Personalnummer / E-Mail</label><input type="text" id="username" class="form-input" placeholder="m.mueller@monkeydrive.de" value="admin.frankfurt@monkeydrive.de"></div>
+<div class="form-group"><label for="password">Passwort</label><input type="password" id="password" class="form-input" placeholder="••••••••" value="password123"></div>
+<div class="login-footer-actions"><label class="checkbox-container"><input type="checkbox" checked> Angemeldet bleiben</label><a href="#" style="color:var(--monkey-orange);text-decoration:none;font-weight:600">Passwort vergessen?</a></div>
+<button type="button" class="btn-login-submit">Terminal Authentifizieren</button></form>
+<div class="system-status-pill"><span class="dot-green"></span> Server-Cluster FFM: Online & Synchronisiert</div></div></div></body></html>
