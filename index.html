@@ -130,7 +130,22 @@ html.light #works .wc-year{background:rgba(255,255,255,.6);color:rgba(0,0,0,.6)}
 .detail-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:48px}
 .detail-gallery .gal-item{border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:3/2;background:var(--surface)}
 .detail-gallery .gal-item img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
-.detail-gallery .gal-item:hover img{transform:scale(1.04)}
+.detail-gallery .gal-item:hover img{transform:scale(1.04);cursor:zoom-in}
+
+/* Project Gallery Lightbox */
+.pj-lightbox{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .3s ease;background:rgba(0,0,0,.85);backdrop-filter:blur(16px)}
+.pj-lightbox.open{opacity:1;pointer-events:auto}
+.pj-lightbox .pj-close{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:20px;transition:all .25s;z-index:10}
+.pj-lightbox .pj-close:hover{background:rgba(255,255,255,.2);transform:scale(1.08)}
+.pj-lightbox .pj-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:18px;transition:all .25s;z-index:10}
+.pj-lightbox .pj-nav:hover{background:rgba(255,255,255,.2)}
+.pj-lightbox .pj-nav:disabled{opacity:.2;cursor:default}
+.pj-lightbox .pj-prev{left:20px}
+.pj-lightbox .pj-next{right:20px}
+.pj-lightbox .pj-img-wrap{max-width:85vw;max-height:85vh;position:relative}
+.pj-lightbox .pj-img-wrap img{max-width:100%;max-height:85vh;border-radius:12px;object-fit:contain;display:block;cursor:zoom-in;transition:transform .35s ease;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.pj-lightbox .pj-img-wrap img.zoomed{transform:scale(2);cursor:zoom-out}
+.pj-lightbox .pj-counter{position:absolute;bottom:-36px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.5);font-size:13px;font-weight:500;font-family:ui-monospace,monospace;white-space:nowrap}
 
 /* ─── PEEK UNDER THE HOOD ─── */
 .hood-toggle{margin:24px 0}
@@ -359,6 +374,17 @@ html.light .contact-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.12)}
       </div>
     </div>
     <div class="detail-gallery" id="detailGallery"></div>
+  </div>
+</div>
+
+<!-- Project Gallery Lightbox -->
+<div class="pj-lightbox" id="pjLightbox" onclick="closePjLightbox(event)">
+  <button class="pj-close" onclick="closePjLightbox()" aria-label="Close gallery">×</button>
+  <button class="pj-nav pj-prev" id="pjPrev" onclick="pjGallery(-1)" aria-label="Previous image">‹</button>
+  <button class="pj-nav pj-next" id="pjNext" onclick="pjGallery(1)" aria-label="Next image">›</button>
+  <div class="pj-img-wrap">
+    <img id="pjImg" src="" alt="Project gallery image" onclick="togglePjZoom()">
+    <span class="pj-counter" id="pjCounter"></span>
   </div>
 </div>
 
@@ -716,7 +742,12 @@ solution:'Supported the rollout of a full-spectrum visual identity system blendi
     detailSolution.textContent=p.solution;
     detailImpact.innerHTML=p.impact.map(function(i){return '<li>'+i+'</li>'}).join('');
     detailTools.innerHTML=p.tools.map(function(t){return '<li>'+t+'</li>'}).join('');
-    detailGallery.innerHTML=p.gallery.map(function(g){return '<div class="gal-item"><img src="'+g+'" alt="Project gallery" loading="lazy"/></div>'}).join('');
+    detailGallery.innerHTML=p.gallery.map(function(g,i){return '<div class="gal-item" data-gallery-index="'+i+'" style="cursor:zoom-in"><img src="'+g+'" alt="Project gallery" loading="lazy"/></div>'}).join('');
+    // Wire gallery clicks
+    var currentGallery=[];
+    [].slice.call(detailGallery.querySelectorAll('.gal-item')).forEach(function(el,i){
+      el.addEventListener('click',function(){openPjLightbox(p.gallery,i)});
+    });
     if(hoodPanel.classList.contains('open')){toggleHood()}
     hoodContent.innerHTML=
       '<div class="code-label">Technical Specs</div>'+
@@ -808,6 +839,41 @@ solution:'Supported the rollout of a full-spectrum visual identity system blendi
     window.location.href='mailto:jw7720046@gmail.com?subject='+encodeURIComponent(subject)+'&body='+body;
     status.textContent='Opening your email client...';
   };
+
+  /* ─── PROJECT GALLERY LIGHTBOX ─── */
+  var pjImages=[],pjIndex=0;
+  window.openPjLightbox=function(images,index){
+    pjImages=images;pjIndex=index;
+    var lb=document.getElementById('pjLightbox');
+    var img=document.getElementById('pjImg');
+    img.src=images[index];
+    img.classList.remove('zoomed');
+    document.getElementById('pjCounter').textContent=(index+1)+' / '+images.length;
+    document.getElementById('pjPrev').disabled=index===0;
+    document.getElementById('pjNext').disabled=index===images.length-1;
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+  window.closePjLightbox=function(e){
+    if(e&&e.target!==e.currentTarget)return;
+    document.getElementById('pjLightbox').classList.remove('open');
+    document.body.style.overflow='';
+  };
+  window.pjGallery=function(dir){
+    var i=pjIndex+dir;
+    if(i<0||i>=pjImages.length)return;
+    window.openPjLightbox(pjImages,i);
+  };
+  window.togglePjZoom=function(){
+    document.getElementById('pjImg').classList.toggle('zoomed');
+  };
+  document.addEventListener('keydown',function(e){
+    var lb=document.getElementById('pjLightbox');
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')window.closePjLightbox();
+    if(e.key==='ArrowLeft'&&pjIndex>0)window.pjGallery(-1);
+    if(e.key==='ArrowRight'&&pjIndex<pjImages.length-1)window.pjGallery(1);
+  });
 
   /* ─── GLOBE — Gore-based Three.js sphere with real country polygons ─── */
   var globeGroup,rendererGl,sceneGl,camGl,autoRotate=true,autoRotTimer=null,isDraggingGl=false,targetRotY=null;

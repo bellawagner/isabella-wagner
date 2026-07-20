@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GLTF Particle Effect</title>
+  <style>
+    :root {
+      --paper: #f8f6ef;
+      --ink: #11120f;
+      --green: #173f32;
+      --line: rgba(17, 18, 15, .14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .particle-demo {
+      width: min(100%, 980px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .45);
+      box-shadow: 0 24px 80px rgba(17, 18, 15, .12);
+    }
+
+    .stage {
+      min-height: 680px;
+      padding: 18px;
+      background: #0f120f;
+    }
+
+    #model-particles {
+      width: 100%;
+      height: 100%;
+      min-height: 640px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--green);
+    }
+
+    .controls {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      padding: 18px;
+      border-left: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: .95;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(17, 18, 15, .66);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .label,
+    .status {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(17, 18, 15, .58);
+    }
+
+    .status {
+      min-height: 34px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .38);
+      line-height: 1.4;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      min-height: 38px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .55);
+      color: var(--ink);
+      cursor: pointer;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    @media (max-width: 760px) {
+      .particle-demo {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .stage,
+      #model-particles {
+        min-height: 520px;
+      }
+    }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="particle-demo">
+    <section class="stage" aria-label="GLTF particle stage">
+      <div id="model-particles"></div>
+    </section>
+
+    <aside class="controls">
+      <h1>GLTF Particles</h1>
+      <p>Replace the model path in the code. The model surface becomes particles with static and interactive gravity modes.</p>
+      <p class="status" id="model-status">Loading model</p>
+
+      <div class="group">
+        <span class="label">Mode</span>
+        <div class="buttons" data-control="mode">
+          <button type="button" data-value="static" aria-pressed="true">Static</button>
+          <button type="button" data-value="center" aria-pressed="false">Center</button>
+          <button type="button" data-value="off" aria-pressed="false">Free</button>
+          <button type="button" data-value="fall" aria-pressed="false">Fall</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="label">Color</span>
+        <div class="buttons" data-control="palette">
+          <button type="button" data-value="model" aria-pressed="true">Model</button>
+          <button type="button" data-value="pearl" aria-pressed="false">Pearl</button>
+          <button type="button" data-value="green" aria-pressed="false">Green</button>
+          <button type="button" data-value="blue" aria-pressed="false">Blue</button>
+          <button type="button" data-value="warm" aria-pressed="false">Warm</button>
+          <button type="button" data-value="mix" aria-pressed="false">Mix</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { MeshSurfaceSampler } from "three/addons/math/MeshSurfaceSampler.js";
+
+    /*
+      =========================
+      WHERE TO PLACE YOUR GLTF
+      =========================
+
+      Put your .glb or .gltf file in the same folder as this HTML file
+      or in a folder beside it. Then update MODEL_SRC.
+
+      Examples:
+        const MODEL_SRC = "model.glb";
+        const MODEL_SRC = "models/character.gltf";
+
+      Important:
+        GLTF loading usually does NOT work reliably from file:// in Chrome.
+        Use a local server:
+          python3 -m http.server 4199
+        Then open:
+          http://127.0.0.1:4199/gltf-particle-effect.html
+
+      If MODEL_SRC is empty or fails, this file shows a fallback torus knot
+      so you can still see the particle behavior.
+    */
+    const MODEL_SRC = "";
+
+    /*
+      =========================
+      HOW MODEL DETECTION WORKS
+      =========================
+
+      1. GLTFLoader loads the model scene.
+      2. The script finds every mesh inside that scene.
+      3. MeshSurfaceSampler picks random points across each mesh surface.
+      4. Those sampled surface points become particle target positions.
+      5. Static mode locks particles to the model shape.
+      6. Center, Free, and Fall modes animate away from or back toward the model.
+    */
+
+    const container = document.querySelector("#model-particles");
+    const status = document.querySelector("#model-status");
+    const palettes = {
+      pearl: [[243, 240, 232]],
+      green: [[137, 214, 176], [72, 151, 112], [219, 231, 220]],
+      blue: [[142, 199, 220], [69, 106, 120], [215, 233, 239]],
+      warm: [[226, 112, 85], [190, 141, 47], [244, 231, 223]],
+      mix: [[243, 240, 232], [137, 214, 176], [142, 199, 220], [226, 112, 85], [190, 141, 47]]
+    };
+
+    const settings = {
+      particleCount: 5200,
+      cursorRadius: 1.25,
+      pointSize: .026,
+      fitSize: 4.2
+    };
+
+    let mode = "static";
+    let palette = "model";
+    let time = 0;
+    let width = 1;
+    let height = 1;
+    let particles = [];
+    let targets = [];
+    let geometry;
+    let points;
+
+    const pointer = new THREE.Vector2(999, 999);
+    const raycaster = new THREE.Raycaster();
+    const pointerPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const pointerWorld = new THREE.Vector3(999, 999, 0);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#173f32");
+
+    const camera = new THREE.PerspectiveCamera(38, 1, .1, 100);
+    camera.position.set(0, 0, 8);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    const positionAttribute = new THREE.Float32BufferAttribute([], 3);
+    const colorAttribute = new THREE.Float32BufferAttribute([], 3);
+    const material = new THREE.PointsMaterial({
+      size: settings.pointSize,
+      vertexColors: true,
+      transparent: true,
+      opacity: .92,
+      depthWrite: false
+    });
+
+    function resize() {
+      const rect = container.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height, false);
+    }
+
+    function colorFor(index, baseColor, depth) {
+      if (palette === "model") return baseColor;
+      const selected = palettes[palette] || palettes.pearl;
+      const color = palette === "mix"
+        ? selected[index % selected.length]
+        : selected[Math.floor(((depth + 1) / 2) * selected.length) % selected.length];
+      return [color[0] / 255, color[1] / 255, color[2] / 255];
+    }
+
+    function normalizeTargets(rawTargets) {
+      const box = new THREE.Box3();
+      rawTargets.forEach((target) => box.expandByPoint(target.position));
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxAxis = Math.max(size.x, size.y, size.z) || 1;
+      const scale = settings.fitSize / maxAxis;
+
+      return rawTargets.map((target) => {
+        const position = target.position.clone().sub(center).multiplyScalar(scale);
+        return {
+          x: position.x,
+          y: position.y,
+          z: position.z,
+          color: target.color,
+          depth: position.z / settings.fitSize
+        };
+      });
+    }
+
+    function meshColor(mesh) {
+      const color = mesh.material?.color || new THREE.Color("#f3f0e8");
+      return [color.r, color.g, color.b];
+    }
+
+    function sampleMeshes(meshes) {
+      const rawTargets = [];
+      const temp = new THREE.Vector3();
+      const normal = new THREE.Vector3();
+      const color = new THREE.Color();
+      const perMesh = Math.max(120, Math.floor(settings.particleCount / Math.max(1, meshes.length)));
+
+      meshes.forEach((mesh) => {
+        const geometry = mesh.geometry.clone();
+        geometry.applyMatrix4(mesh.matrixWorld);
+        const sampler = new MeshSurfaceSampler(new THREE.Mesh(geometry)).build();
+        const baseColor = meshColor(mesh);
+
+        for (let index = 0; index < perMesh && rawTargets.length < settings.particleCount; index += 1) {
+          sampler.sample(temp, normal, color);
+          rawTargets.push({
+            position: temp.clone(),
+            color: baseColor
+          });
+        }
+      });
+
+      return normalizeTargets(rawTargets);
+    }
+
+    function createFallbackTargets() {
+      const rawTargets = [];
+      const fallbackGeometry = new THREE.TorusKnotGeometry(1.3, .42, 220, 28);
+      const fallbackMesh = new THREE.Mesh(fallbackGeometry, new THREE.MeshBasicMaterial({ color: "#f3f0e8" }));
+      fallbackMesh.updateMatrixWorld(true);
+      const sampler = new MeshSurfaceSampler(fallbackMesh).build();
+      const temp = new THREE.Vector3();
+
+      for (let index = 0; index < settings.particleCount; index += 1) {
+        sampler.sample(temp);
+        rawTargets.push({
+          position: temp.clone(),
+          color: [243 / 255, 240 / 255, 232 / 255]
+        });
+      }
+
+      return normalizeTargets(rawTargets);
+    }
+
+    function buildParticles(newTargets) {
+      targets = newTargets;
+      particles = targets.map((target, index) => {
+        const angle = index * .618;
+        const spread = 5 + Math.random() * 4;
+        const startStatic = mode === "static";
+
+        return {
+          tx: target.x,
+          ty: target.y,
+          tz: target.z,
+          x: startStatic ? target.x : Math.cos(angle) * spread,
+          y: startStatic ? target.y : Math.sin(angle) * spread,
+          z: startStatic ? target.z : (Math.random() - .5) * spread,
+          vx: 0,
+          vy: 0,
+          vz: 0,
+          color: target.color,
+          depth: target.depth
+        };
+      });
+
+      geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(particles.length * 3), 3));
+      geometry.setAttribute("color", new THREE.Float32BufferAttribute(new Float32Array(particles.length * 3), 3));
+
+      if (points) scene.remove(points);
+      points = new THREE.Points(geometry, material);
+      scene.add(points);
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+
+      particles.forEach((particle) => {
+        if (mode === "static") {
+          particle.x = particle.tx;
+          particle.y = particle.ty;
+          particle.z = particle.tz;
+          particle.vx = 0;
+          particle.vy = 0;
+          particle.vz = 0;
+        }
+
+        if (mode === "off") {
+          particle.vx += (Math.random() - .5) * .12;
+          particle.vy += (Math.random() - .5) * .12;
+          particle.vz += (Math.random() - .5) * .12;
+        }
+
+        if (mode === "fall") {
+          particle.vy -= .18 + Math.random() * .08;
+          particle.vx += (Math.random() - .5) * .08;
+        }
+      });
+    }
+
+    function loadModel() {
+      if (!MODEL_SRC) {
+        buildParticles(createFallbackTargets());
+        status.textContent = "Fallback shape / set MODEL_SRC";
+        return;
+      }
+
+      const loader = new GLTFLoader();
+      loader.load(
+        MODEL_SRC,
+        (gltf) => {
+          const meshes = [];
+          gltf.scene.updateMatrixWorld(true);
+          gltf.scene.traverse((child) => {
+            if (child.isMesh && child.geometry) meshes.push(child);
+          });
+
+          if (!meshes.length) {
+            buildParticles(createFallbackTargets());
+            status.textContent = "No meshes found / fallback";
+            return;
+          }
+
+          buildParticles(sampleMeshes(meshes));
+          status.textContent = `${particles.length} model particles`;
+        },
+        undefined,
+        () => {
+          buildParticles(createFallbackTargets());
+          status.textContent = "Model failed / fallback";
+        }
+      );
+    }
+
+    function updatePointer(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      raycaster.setFromCamera(pointer, camera);
+      raycaster.ray.intersectPlane(pointerPlane, pointerWorld);
+    }
+
+    function applyPointerForce(particle) {
+      if (mode === "static") return;
+
+      const dx = particle.x - pointerWorld.x;
+      const dy = particle.y - pointerWorld.y;
+      const dz = particle.z - pointerWorld.z;
+      const distSq = dx * dx + dy * dy + dz * dz;
+      const influence = settings.cursorRadius * settings.cursorRadius;
+
+      if (distSq < influence) {
+        const dist = Math.sqrt(distSq) || 1;
+        const force = (1 - dist / settings.cursorRadius) * .035;
+        particle.vx += (dx / dist) * force;
+        particle.vy += (dy / dist) * force;
+        particle.vz += (dz / dist) * force + .01;
+        particle.vx += -dy * .006 * force;
+        particle.vy += dx * .006 * force;
+      }
+    }
+
+    function animate() {
+      time += .012;
+
+      if (particles.length && geometry) {
+        const positions = geometry.attributes.position.array;
+        const colors = geometry.attributes.color.array;
+
+        particles.forEach((particle, index) => {
+          const wave = Math.sin(time + particle.depth * 3.2 + particle.tx * .7) * .005;
+
+          if (mode === "static") {
+            particle.x += (particle.tx - particle.x) * .42;
+            particle.y += (particle.ty - particle.y) * .42;
+            particle.z += (particle.tz - particle.z) * .42;
+            particle.vx = 0;
+            particle.vy = 0;
+            particle.vz = 0;
+          }
+
+          if (mode === "center") {
+            particle.vx += (particle.tx - particle.x) * .018 + wave;
+            particle.vy += (particle.ty - particle.y) * .018;
+            particle.vz += (particle.tz - particle.z) * .018;
+          }
+
+          if (mode === "off") {
+            particle.vx += Math.sin(time * 1.7 + particle.ty) * .0015;
+            particle.vy += Math.cos(time * 1.4 + particle.tx) * .0015;
+            particle.vz += Math.sin(time * 1.2 + particle.depth * 4) * .0015;
+          }
+
+          if (mode === "fall") {
+            particle.vx += (particle.tx - particle.x) * .001;
+            particle.vy -= .006;
+            particle.vz += (particle.tz - particle.z) * .001;
+
+            if (particle.y < -4.2) {
+              particle.y = 4.2 + Math.random();
+              particle.x = particle.tx + (Math.random() - .5) * .8;
+              particle.z = particle.tz;
+              particle.vy = 0;
+            }
+          }
+
+          applyPointerForce(particle);
+
+          const damping = mode === "static" ? 0 : mode === "center" ? .9 : mode === "off" ? .982 : .965;
+          particle.vx *= damping;
+          particle.vy *= mode === "fall" ? .992 : damping;
+          particle.vz *= damping;
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.z += particle.vz;
+
+          const offset = index * 3;
+          positions[offset] = particle.x;
+          positions[offset + 1] = particle.y;
+          positions[offset + 2] = particle.z;
+
+          const [red, green, blue] = colorFor(index, particle.color, particle.depth);
+          colors[offset] = red;
+          colors[offset + 1] = green;
+          colors[offset + 2] = blue;
+        });
+
+        geometry.attributes.position.needsUpdate = true;
+        geometry.attributes.color.needsUpdate = true;
+        points.rotation.y = Math.sin(time * .45) * .12;
+      }
+
+      renderer.render(scene, camera);
+      window.requestAnimationFrame(animate);
+    }
+
+    document.querySelectorAll("[data-control]").forEach((group) => {
+      group.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        group.querySelectorAll("button").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+
+        if (group.dataset.control === "mode") setMode(button.dataset.value);
+        if (group.dataset.control === "palette") palette = button.dataset.value;
+      });
+    });
+
+    renderer.domElement.addEventListener("pointermove", updatePointer);
+    renderer.domElement.addEventListener("pointerleave", () => pointerWorld.set(999, 999, 0));
+    window.addEventListener("resize", resize);
+
+    resize();
+    loadModel();
+    animate();
+  </script>
+</body>
+</html>
